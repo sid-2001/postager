@@ -1,0 +1,54 @@
+const Brand=require('../Database/Model/Brand')
+var axios=require('axios');
+exports.AddApikeysandTokenFacebook = async (req, res) => {
+try{
+    if (req.body._id && req.body.facebookid && req.body.oauth_token && req.body._id.match(/^[0-9a-fA-F]{24}$/)) {
+       var url='https://graph.facebook.com/v3.2/oauth/access_token?grant_type=fb_exchange_token&client_id='+process.env.Facebook_Consumer_key+'&client_secret='+process.env.Facebook_Consumer_Secret+'&fb_exchange_token='+req.body.oauth_token; 
+      const response = await axios.get(url);
+      
+      console.log('the data is'+response.data);
+      var longliveacesstoken=response.data.access_token;
+      var lonnglivepagesurl='https://graph.facebook.com/v3.2/'+ req.body.facebookid+'/accounts?access_token='+longliveacesstoken;
+      console.log(lonnglivepagesurl)
+      const pagesdata=await axios.get(lonnglivepagesurl);
+      let map = new Map();
+      pagesdata.data.data.forEach(function (item, index) {
+        console.log("itemsis "+item)
+        console.log(item.id);
+        map.set(item.id,item.access_token);
+      });
+      console.log(map);
+  
+       Brand.updateOne({
+            "_id": req.body._id
+        }, {
+            'facebookcredential':map
+        }, function (error, response) {
+            if (error) {
+
+                res.json({status: 0, msg: "Internal Server Error check your credentials"})
+            } else {
+                if (response.nModified == 1) {
+
+                    res.json({Status: 1, msg: "updated succesfully"})
+
+                } else {
+                    res.json({Status: 0, msg: "Not Updated/Dont tyr to Overwrite"})
+
+                }
+            }
+            console.log(error);
+
+        });
+
+    } else {
+
+        res.json({status: 0, msg: "Send all Necessary Fields"})
+    }
+}
+catch(err){
+console.log(err);
+res.send({status: 0, msg: "Internal Server error check your credential and try again"});
+
+}
+}
