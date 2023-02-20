@@ -51,7 +51,7 @@ function getLinkedinId(req) {
         });
     });
 }
-function  publishContent(req, linkedinId, content) {
+function  publishContent(linkedinId, content,token) {
     const url = 'https://api.linkedin.com/v2/shares';
     const { title, text, shareUrl, shareThumbnailUrl } = content;
     const body = {
@@ -74,7 +74,7 @@ function  publishContent(req, linkedinId, content) {
         }
     };
     const headers = {
-        'Authorization': 'Bearer ' + req.session.token,
+        'Authorization': 'Bearer ' + token,
         'cache-control': 'no-cache',
         'X-Restli-Protocol-Version': '2.0.0',
         'x-li-format': 'json'
@@ -92,6 +92,10 @@ function  publishContent(req, linkedinId, content) {
 }
 
 exports.GetAuthLink = async (req, res) => {
+   try{
+
+
+
 
     if (req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.brandid.match(/^[0-9a-fA-F]{24}$/)) {
       
@@ -113,10 +117,15 @@ exports.GetAuthLink = async (req, res) => {
       res.json({status: 0, mag: "check you Crendentials"})
 
     }
+   }
+   catch(err){
 
+    console.log('eror in gettin auth lingk');
+   }
 }
 
 exports.Callback = async (req, res) => {
+    try{
     console.log(JSON.stringify(req.session));
     if(!req.query.code) {
         console.log("i have been called at this time")
@@ -164,9 +173,12 @@ if(savedresponce){
         res.json(err);
     }
 
-}
+}catch(err){
 
-exports.PublishLinkedIn=async(title, text, url, thumb, id)=>{
+    console.log("error in gettiing  callback")
+}
+}
+exports.PublishLinkedIn=async(title, text, url, thumb, id,token)=>{
 
    
     const errors = [];
@@ -195,10 +207,13 @@ exports.PublishLinkedIn=async(title, text, url, thumb, id)=>{
         };
 
         try {
-            const response = await publishContent(req, id, content);
-            res.json({ success: 'Post published successfully.' });
+            const response = await publishContent( id, content,token);
+            
+          console.log("uploaded succesfully on linkedin")
+          return response
         } catch(err) {
-            res.json({ error: 'Unable to publish your post.' });
+            console.log(err);
+            console.log("can not upload succesfully on Linekedin");
         }
     }   
 

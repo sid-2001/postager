@@ -15,16 +15,16 @@ router.post('/NewPassward', LoginService.NewPassward);
 router.post('/ForgotPassward', LoginService.ForgetPassward);
 
 
-router.post('/UpdateAccount',auth,LoginService.UpdateAccount);
+router.post('/UpdateAccount',LoginService.UpdateAccount);
 
 
 
 
-router.post('/Post_To_All_SocialMedia_Scheduling',auth, LoginService.Post_To_All_SocialMedia_Scheduling)
-router.post('/Post_To_All_SocialMedia_Immediatly',auth, LoginService.Post_To_All_SocialMedia_Immidiatly);
-router.post('/Show_All_Post',auth, LoginService.Show_All_Post);
-router.post('/Show_Scheduled_Post',auth, LoginService.Show_Scheduled_Post);
-router.post('/Show_Live_Post',auth, LoginService.Show_Live_Post);
+router.post('/Post_To_All_SocialMedia_Scheduling', LoginService.Post_To_All_SocialMedia_Scheduling)
+router.post('/Post_To_All_SocialMedia_Immediatly', LoginService.Post_To_All_SocialMedia_Immidiatly);
+router.post('/Show_All_Post', LoginService.Show_All_Post);
+router.post('/Show_Scheduled_Post', LoginService.Show_Scheduled_Post);
+router.post('/Show_Live_Post', LoginService.Show_Live_Post);
 
 
 

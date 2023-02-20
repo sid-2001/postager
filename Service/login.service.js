@@ -1,5 +1,6 @@
 var user=require('../Database/Model/User');
 var Post=require('../Database/Model/Posts');
+var Brand=require('../Database/Model/Brand');
 var jwt = require("jsonwebtoken");
 const axios = require('axios');
 const {IgApiClient} = require('instagram-private-api');
@@ -10,7 +11,8 @@ const Transporter=require('../Mail/Transporter');
 var {LocalStorage} =require( 'node-localstorage'); 
 const serverfile=require('../server.js');
 var upload=serverfile.upload
-
+const Linekedin=require("../Controllers/LinkedIn");
+const Instagram=require("../Controllers/Instagram");
 
 // constructor function to create a storage directory inside our project for all our localStorage setItem.
 var localStorage = new LocalStorage('./Localstorage'); 
@@ -36,52 +38,7 @@ const newTweeterClient = function (subdomain = 'api',Consumer_key,Consumer_Secre
 
 
 
-const postToInsta = async (Instagramid, Content, Image,accesstoken) => {
-   
-    console.log(Content);
-    console.log(Image);
-    var base = 'https://graph.facebook.com/'
-    // var date_Frontend=req.body.date;
-    // var date=req.body.date;
-    var ping_adr = base + Instagramid + '/media?image_url=' + Image + '&caption=' + Content + '&access_token=' + accesstoken;
-    const data= await axios
-    .post(ping_adr).catch((err) => {
-          if(err.code=='ERR_BAD_REQUEST'){
 
-            console.log("Bad Request happen check credentials");
-          }
-          else{
-            console.log(err.code);
-          }
-        });
-    
-
-if(data){
-    var container_ping_adr=base+Instagramid+'/media_publish?creation_id='+data.data.id+'&access_token=' + accesstoken;;
-    console.log(container_ping_adr);
- 
- const data2= await axios.post(container_ping_adr).catch((err)=>{
- 
-     console.log(err);
-     
- });
- 
- if(data2!=null){
-    console.log("Posted on Instagram succesfull");
-     return data2.data.id;
- 
- }
- else{
- return null;
- }
-
-}
-else{
-    return null;
-}
-
-  
-}
 
 const postToInstaScheduled = async (Instagramid, Content, Image,accesstoken,postid) => {
   
@@ -775,16 +732,22 @@ mag:"send all necessary fields"
 exports.Post_To_All_SocialMedia_Immidiatly=async(req,res)=>{
 //    var date=new Date('2011-04-11T10:20:30Z')
     // console.log(date);
+    try{
+    
     var errorstaus=false;
-    if(req.body.Platform&&req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.Content&&req.body.Brand){
-var userdata=await user.findById(req.body.userid,function(err,result){
+    if(req.body.Platform&&req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.Content&&req.body.Brand&&req.body.Brand.match(/^[0-9a-fA-F]{24}$/)){
+
+ var userdata=await user.findById(req.body.userid,function(err,result){
+  
+    if (err) throw err;
+    })
+var branddata=await Brand.findById(req.body.Brand,function(err,result){
   
     if (err) throw err;
     })
 
-
     
-console.log(userdata);
+
    
 
 
@@ -793,16 +756,27 @@ console.log(userdata);
     // console.log(photopath);
    
     // var Instagramid=req.body.Instagramid;
-    var Content = req.body.Content; 
-  var facebookpostid="";
-  var instagrampostid=""
+var Content = req.body.Content; 
+var facebookpostid="";
+var instagrampostid="";
+var linkedinid=""
 
   var currentPoststack=userdata.Posts;
 
 
 
-  if(req.body.Platform.includes("Twitter")){
+  if(req.body.Platform.includes("LinekedIn")){
 
+    try{await Linekedin.PublishLinkedIn("hello", req.body.Content, 'https://www.instagram.com/dm29phase1/', Image, branddata.linkedinid,branddata.linkedintoken).then((data)=>{
+
+    linkedinid=data.id;
+
+    })
+    }
+    catch(err){
+
+        console.log("error in posting Linekedin post")
+    }
 
 
 
@@ -810,38 +784,56 @@ console.log(userdata);
 
 if(req.body.Platform.includes("Facebook")){
     var base = 'https://graph.facebook.com/'
-    var pageid = userdata.facebookid;
-    var accesstoken = userdata.facebooktoken;
-    var ping_adr = base+ pageid + '/photos?url=' +Image+ '&message=' + Content + '&access_token=' + accesstoken;
-   console.log(ping_adr);
-    const facebookdata=  await axios
-      .post(ping_adr)
-      .catch(err => {
-         if(err.code=="ERR_BAD_REQUEST"){
-            console.log(err);
+     
+try{
+    for (let [key, value] of branddata.facebookcredential) {
+        console.log(key + " = " + value);
+        var pageid = key;
+        var accesstoken = value;
+        var ping_adr = base+ pageid + '/photos?url=' +Image+ '&message=' + Content + '&access_token=' + accesstoken;
+       console.log(ping_adr);
+        const facebookdata=  await axios
+          .post(ping_adr)
+          .catch(err => {
+             if(err.code=="ERR_BAD_REQUEST"){
+                console.log("bad request in Facebook for "+pageid);
+                console.log(err);
+    
+           
+             }  
+    
+          })
+          if(facebookdata){
+    
+            facebookpostid=facebookdata.data.id;
+            console.log("Posted Succesfully on Facebook");
+          }
+          else{
+            facebookpostid=null;
+          }
+           
+        }
 
-        console.log("Api kewy Expired");
-         }
-          
-               
+}
+catch(err){
 
-      })
-      if(facebookdata){
+console.log("error in getting Facebook post");
+}
 
-        facebookpostid=facebookdata.data.id;
-        console.log("Posted Succesfullu on Facebook");
-      }
-      else{
-        facebookpostid=null;
-      }
       
     }
 
     if(req.body.Platform.includes("Instagram")){
-        instagrampostid=await postToInsta(userdata.Instagramid
-            ,req.body.Content,Image,userdata.Instagramtoken
+          try{
+        for (let [key, value] of branddata.instagramcredential) {
+        instagrampostid=await Instagram.postToInsta(key
+            ,req.body.Content,Image,value
             );
-      
+        }     }
+        catch(err){
+
+            console.log("Instagram posting error")
+        } 
 
 
     
@@ -854,6 +846,7 @@ if(req.body.Platform.includes("Facebook")){
         userid:req.body.userid,
         instapostid:instagrampostid,
         facebookpostid:facebookpostid,
+        linkedinpostid:linkedinid,
         Createdat:new Date(),
         Scheduledat:new Date(),
         Status:"Live",
@@ -893,6 +886,14 @@ else{
     })
 }
 
+}catch(err){
+res.json({
+
+    status:0,
+    msg:"error in Server"
+})
+    console.log(err);
+}
 }
 exports.Post_To_All_SocialMedia_Scheduling=async(req,res)=>{
 if(req.body.Platform&&req.body.Date&&req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.Content&&req.body.Brand){
