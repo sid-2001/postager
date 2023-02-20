@@ -749,7 +749,7 @@ var branddata=await Brand.findById(req.body.Brand,function(err,result){
 
      var Image='https://kaushik.onrender.com/image/'+req.file.filename;
     // console.log(photopath);
-   
+   console.log(Image);
     // var Instagramid=req.body.Instagramid;
 var Content = req.body.Content; 
 var facebookpostid="";
@@ -771,6 +771,7 @@ var linkedinid=""
     catch(err){
 
         console.log("error in posting Linekedin post")
+        console.log(err);
     }
 
 
