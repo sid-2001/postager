@@ -736,7 +736,7 @@ exports.Post_To_All_SocialMedia_Immidiatly=async(req,res)=>{
     
     var errorstaus=false;
     if(req.body.Platform&&req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.Content&&req.body.Brand&&req.body.Brand.match(/^[0-9a-fA-F]{24}$/)){
-
+console.log(req.file);
  var userdata=await user.findById(req.body.userid,function(err,result){
   
     if (err) throw err;
@@ -746,12 +746,7 @@ var branddata=await Brand.findById(req.body.Brand,function(err,result){
     if (err) throw err;
     })
 
-    
 
-   
-
-
-//  var Image = req.body.Image;
      var Image='https://kaushik.onrender.com/image/'+req.file.filename;
     // console.log(photopath);
    

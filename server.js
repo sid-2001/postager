@@ -34,7 +34,7 @@ app.use(parser.json()); // to support JSON-encoded bodies
 app.use(parser.urlencoded({ // to support URL-encoded bodies
     extended: true
 }));
-app.use(session({ secret: 'secret' }))
+// app.use(session({ secret: 'secret' }))
 let port = process.env.PORT;
 if (port == null || port == "") {
     port = 4000;
