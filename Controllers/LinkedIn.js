@@ -120,7 +120,8 @@ exports.GetAuthLink = async (req, res) => {
    }
    catch(err){
 
-    console.log('eror in gettin auth lingk');
+    console.log('error in getting auth link');
+    console.log(err);
    }
 }
 
