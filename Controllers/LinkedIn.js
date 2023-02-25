@@ -99,7 +99,7 @@ exports.GetAuthLink = async (req, res) => {
 
     if (req.body.userid.match(/^[0-9a-fA-F]{24}$/)&&req.body.brandid.match(/^[0-9a-fA-F]{24}$/)) {
       
-        req.session.userid=req.body.userid;
+        // req.session.userid=req.body.userid;
 
 
         const state = req.body.brandid;
@@ -163,11 +163,7 @@ exports.Callback = async (req, res) => {
          });
 if(savedresponce){
 
-    res.json({
-
-        status:1,
-        msg:"saved succesfull your data"
-    })
+  console.log("we have saved the document succesfully")
 }
         res.send(savedresponce);
     } catch(err) {
