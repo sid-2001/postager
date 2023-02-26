@@ -33,12 +33,12 @@ function getAccessToken(req) {
     );
     });
 }
-function getLinkedinId(req) {
+function getLinkedinId(req,token) {
     console.log("come to get linkedin id")
     return new Promise((resolve, reject) => {
         const url = 'https://api.linkedin.com/v2/me';
         const headers = {
-            'Authorization': 'Bearer ' + req.session.token,
+            'Authorization': 'Bearer ' + token,
             'cache-control': 'no-cache',
             'X-Restli-Protocol-Version': '2.0.0' 
         };
@@ -139,12 +139,12 @@ exports.Callback = async (req, res) => {
       
        const data=dataget.body;
        console.log(data);
-        if(data.access_token) {
-            req.session.token = data.access_token;
-            req.session.authorized = true;
+        // if(data.access_token) {
+        //     req.session.token = data.access_token;
+        //     req.session.authorized = true;
         
-        }
-        const id= await getLinkedinId(req);
+        // }
+        const id= await getLinkedinId(req,data.access_token);
         console.log(id);
      var savedresponce=  await Brand.findByIdAndUpdate({'_id':dataget.brandid},{'linkedinid':id ,
             'linkedintoken': data.access_token},function(error,response){
@@ -157,7 +157,7 @@ exports.Callback = async (req, res) => {
          
             if(!error){
          
-             console.log("updated Document"+response)
+             console.log("updated Document"+savedresponce)
             }
          
          });
@@ -167,7 +167,7 @@ if(savedresponce){
 }
         res.send(savedresponce);
     } catch(err) {
-        res.json(err);
+        console.log(err);
     }
 
 }catch(err){
@@ -175,6 +175,7 @@ if(savedresponce){
     console.log("error in gettiing  callback")
 }
 }
+
 exports.PublishLinkedIn=async(title, text, url, thumb, id,token)=>{
 
    
