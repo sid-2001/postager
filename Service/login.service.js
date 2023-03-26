@@ -835,7 +835,21 @@ console.log("error in getting Facebook post");
     
     }
    
+    if(req.body.Platform.includes('LinekedIn')){
+        try{
+     
 
+
+
+      }     
+      catch(err){
+
+          console.log("Linkedin posting error")
+      } 
+
+
+  
+  }
 
     var post = new Post({
     
@@ -1136,3 +1150,5 @@ exports.Show_Live_Post=async(req,res)=>{
     }
 
 }
+
+exports.Show_

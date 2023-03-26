@@ -1,5 +1,21 @@
 const Brand=require('../Database/Model/Brand')
 var axios=require('axios');
+const { resolve } = require('path');
+const { rejects } = require('assert');
+function returnaccestoken(brandid){
+return new Promise((resolve,rejects)=>{
+
+user.findById(req.body.userid,function(err,result){
+resolve(result)
+rejects(err);
+})
+
+    
+})
+
+
+}
+
 exports.AddApikeysandTokenFacebook = async (req, res) => {
 try{
     if (req.body._id && req.body.facebookid && req.body.oauth_token && req.body._id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -51,4 +67,36 @@ console.log(err);
 res.send({status: 0, msg: "Internal Server error check your credential and try again"});
 
 }
+}
+exports.Getallcomments=async(req,res)=>{
+    
+var access_token=req.body.access_token;
+var postid=req.body.postid;
+var getallcommenturl= `https://graph.facebook.com/v3.2/${postid}/comments?access_token=${access_token}`
+try{
+
+    const commentdata=await axios.get(getallcommenturl);
+    console.log(commentdata)
+    res.json({
+     'status':1,
+     'msg':commentdata.data.data
+
+    })
+
+
+
+}
+catch(err){
+
+     console.log(err);
+    res.json({"msg":0,'msg':"Internal Server Error"})
+
+}
+
+
+
+    
+}
+exports.ReplyToComment=async(Req,res)=>{
+
 }

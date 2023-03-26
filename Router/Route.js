@@ -51,4 +51,7 @@ router.get('/twitter/callback',Twitter.Callback);
 
 router.post('/AddApikeysandTokenFacebook',Facebook.AddApikeysandTokenFacebook );
 router.post('/AddApikeysandTokenInstagram', Instagram.AddApikeysandTokenInstagram);
+
+router.post('/GetallComment',Facebook.Getallcomments)
+// router.post('ReplyToComment',Facebook)
 module.exports = router;
